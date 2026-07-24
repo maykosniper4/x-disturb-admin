@@ -7,7 +7,7 @@ RUN pnpm config set fetch-retries 5 && \
     pnpm config set fetch-retry-maxtimeout 120000 && \
     pnpm config set network-concurrency 16 && \
     pnpm config set store-dir /pnpm/store
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+RUN --mount=type=cache,id=pnpm2,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
 FROM node:20-alpine AS builder
