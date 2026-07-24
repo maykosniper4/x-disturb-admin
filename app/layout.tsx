@@ -1,12 +1,9 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ReduxProvider } from "@/providers/redux-provider";
 import { AdminContextProvider } from "@/components/context-provider";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "X-Disturb Dashboard",
@@ -20,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} scrollbar-hide`}>
+      <body className="scrollbar-hide">
         <ReduxProvider>
           <ThemeProvider
             attribute="class"

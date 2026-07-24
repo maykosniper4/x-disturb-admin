@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,6 +44,8 @@
 
     --header-height: 72px;
     --admin-shell-bg: 0 0% 98%;
+    --font-landing-display: "Syne", sans-serif;
+    --font-landing-body: "DM Sans", sans-serif;
   }
 
   .dark {
