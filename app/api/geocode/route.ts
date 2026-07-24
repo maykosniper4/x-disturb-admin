@@ -11,23 +11,13 @@ export async function GET(request: NextRequest) {
 		);
 	}
 
-	const apiKey = process.env.HERE_API_KEY;
-
-	if (!apiKey) {
-		console.error("HERE_API_KEY is not configured on the server.");
-		return NextResponse.json(
-			{ error: "Geocoding service is not configured." },
-			{ status: 503 },
-		);
-	}
-
 	try {
-		const hereUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(q)}&apiKey=${apiKey}`;
-		const response = await fetch(hereUrl);
+		const arcgisUrl = `https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?SingleLine=${encodeURIComponent(q)}&f=json`;
+		const response = await fetch(arcgisUrl);
 
 		if (!response.ok) {
 			const errorBody = await response.text();
-			console.error(`HERE API error ${response.status}: ${errorBody}`);
+			console.error(`ArcGIS error ${response.status}: ${errorBody}`);
 			return NextResponse.json(
 				{ error: `Geocoding request failed: ${response.statusText}` },
 				{ status: response.status },

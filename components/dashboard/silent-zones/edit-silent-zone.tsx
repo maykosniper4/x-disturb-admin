@@ -248,13 +248,9 @@ export default function UpdateSilentZone() {
 										lat: String(zoneData.center?.latitude || "0"),
 										lng: String(zoneData.center?.longitude || "0"),
 									}}
-									initialAddress={zoneData.address || ""}
 									onCoordinatesChange={(coords) => {
 										form.setValue("center.latitude", coords.lat);
 										form.setValue("center.longitude", coords.lng);
-									}}
-									onAddressChange={(address) => {
-										form.setValue("address", address);
 									}}
 								/>
 							) : (

@@ -241,9 +241,6 @@ export default function CreateSilentZone() {
 									form.setValue("center.latitude", coords.lat);
 									form.setValue("center.longitude", coords.lng);
 								}}
-								onAddressChange={(address) => {
-									form.setValue("address", address);
-								}}
 							/>
 
 							{/* Zone Radius */}
