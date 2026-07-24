@@ -5,31 +5,28 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, MapPin, Navigation, Search } from "lucide-react";
+import { Loader2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import AddressField from "./AddressSuggestion";
 
 type HereMapProps = {
   onCoordinatesChange: (coords: { lat: string; lng: string }) => void;
-  onAddressChange?: (address: string) => void;
   radius: number;
   initialCoordinates?: { lat: string; lng: string };
-  initialAddress?: string;
 };
 
 const HereMap = ({
   onCoordinatesChange,
-  onAddressChange,
   radius,
   initialCoordinates,
-  initialAddress,
 }: HereMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<InstanceType<NonNullable<Window["H"]>["Map"]> | null>(null);
   const markerRef = useRef<InstanceType<NonNullable<Window["H"]>["map"]["Marker"]> | null>(null);
   const circleRef = useRef<InstanceType<NonNullable<Window["H"]>["map"]["Circle"]> | null>(null);
   const platformRef = useRef<any>(null);
+  const onCoordsChangeRef = useRef(onCoordinatesChange);
+  onCoordsChangeRef.current = onCoordinatesChange;
   const [coordinates, setCoordinates] = useState<{
     lat: string | null;
     lng: string | null;
@@ -37,15 +34,43 @@ const HereMap = ({
     lat: initialCoordinates?.lat || null,
     lng: initialCoordinates?.lng || null,
   });
-  const [searchQuery, setSearchQuery] = useState<string>(initialAddress || "");
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLocating, setIsLocating] = useState<boolean>(false);
   const [isMapLoading, setIsMapLoading] = useState<boolean>(true);
 
   const apikey: string = process.env.NEXT_PUBLIC_HERE_API_KEY || "";
 
-  // Load HERE Maps scripts and initialize the map
+  const isValidCoord = (v: string | null) =>
+    v !== null && v !== "" && isFinite(Number(v));
+
+  const syncMapToCoord = (lat: number, lng: number) => {
+    const map = mapInstance.current;
+    if (!map) return;
+    const coord = { lat, lng };
+    map.setCenter(coord);
+
+    if (markerRef.current) {
+      markerRef.current.setGeometry(coord);
+    } else {
+      markerRef.current = new window.H.map.Marker(coord);
+      map.addObject(markerRef.current!);
+    }
+
+    if (circleRef.current) {
+      circleRef.current.setCenter(coord);
+      circleRef.current.setRadius(radius);
+    } else {
+      circleRef.current = new window.H.map.Circle(coord, radius, {
+        style: {
+          strokeColor: "rgba(255, 0, 0, 0.7)",
+          lineWidth: 2,
+          fillColor: "rgba(0, 255, 0, 0.3)",
+        },
+      });
+      map.addObject(circleRef.current!);
+    }
+  };
+
   useEffect(() => {
     if (!apikey) {
       setIsMapLoading(false);
@@ -96,16 +121,17 @@ const HereMap = ({
 
         const defaultLayers = platformRef.current.createDefaultLayers();
 
-        const hasInitialCoords =
+        const hasInitialCoords = !!(
           initialCoordinates &&
-          initialCoordinates.lat &&
-          initialCoordinates.lng &&
-          initialCoordinates.lat !== "0" &&
-          initialCoordinates.lng !== "0";
+          isValidCoord(initialCoordinates.lat) &&
+          isValidCoord(initialCoordinates.lng) &&
+          Number(initialCoordinates.lat) !== 0 &&
+          Number(initialCoordinates.lng) !== 0
+        );
         const mapCenter = hasInitialCoords
           ? {
-              lat: parseFloat(initialCoordinates.lat!),
-              lng: parseFloat(initialCoordinates.lng!),
+              lat: Number(initialCoordinates.lat!),
+              lng: Number(initialCoordinates.lng!),
             }
           : { lat: 9.0572, lng: 38.7592 };
 
@@ -119,7 +145,7 @@ const HereMap = ({
           }
         );
 
-        const behavior = new here.mapevents.Behavior(
+        new here.mapevents.Behavior(
           new here.mapevents.MapEvents(mapInstance.current)
         );
 
@@ -137,28 +163,8 @@ const HereMap = ({
               lng: coord.lng.toFixed(6),
             };
             setCoordinates(newCoord);
-            onCoordinatesChange(newCoord);
-
-            if (markerRef.current) {
-              markerRef.current.setGeometry(coord);
-            } else {
-              markerRef.current = new here.map.Marker(coord);
-              mapInstance.current!.addObject(markerRef.current!);
-            }
-
-            if (circleRef.current) {
-              circleRef.current.setCenter(coord);
-              circleRef.current.setRadius(radius);
-            } else {
-              circleRef.current = new here.map.Circle(coord, radius, {
-                style: {
-                  strokeColor: "rgba(255, 0, 0, 0.7)",
-                  lineWidth: 2,
-                  fillColor: "rgba(0, 255, 0, 0.3)",
-                },
-              });
-              mapInstance.current!.addObject(circleRef.current!);
-            }
+            onCoordsChangeRef.current(newCoord);
+            syncMapToCoord(coord.lat, coord.lng);
           }
         });
 
@@ -178,9 +184,8 @@ const HereMap = ({
         mapInstance.current = null;
       }
     };
-  }, [apikey, initialCoordinates, onCoordinatesChange, radius]);
+  }, [apikey]);
 
-  // Update circle radius when radius prop changes
   useEffect(() => {
     if (!mapInstance.current || !circleRef.current) return;
 
@@ -190,64 +195,21 @@ const HereMap = ({
   const handleCoordinateInputChange = (type: "lat" | "lng", value: string) => {
     const newCoord = { ...coordinates, [type]: value };
     setCoordinates(newCoord);
-  };
-
-  const handleApplyCoords = () => {
-    if (coordinates.lat && coordinates.lng) {
-      onCoordinatesChange({
-        lat: coordinates.lat,
-        lng: coordinates.lng,
+    if (isValidCoord(newCoord.lat) && isValidCoord(newCoord.lng)) {
+      onCoordsChangeRef.current({
+        lat: newCoord.lat!,
+        lng: newCoord.lng!,
       });
     }
   };
 
-  const performSearch = async (query: string) => {
-    if (!query || !mapInstance.current) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const encodedQuery = encodeURIComponent(query);
-      const url = `/api/geocode?q=${encodedQuery}`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(
-          `Geocoding request failed with status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-
-      if (data.items && data.items.length > 0) {
-        const position = data.items[0].position;
-        const newCoord = {
-          lat: position.lat.toFixed(6),
-          lng: position.lng.toFixed(6),
-        };
-        setCoordinates(newCoord);
-        onCoordinatesChange(newCoord);
-      } else {
-        setError("No results found for your search query.");
-      }
-    } catch (error) {
-      console.error("Search error:", error);
-      setError(
-        `Search failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    } finally {
-      setIsLoading(false);
+  const handleApplyCoords = () => {
+    if (isValidCoord(coordinates.lat) && isValidCoord(coordinates.lng)) {
+      onCoordsChangeRef.current({
+        lat: coordinates.lat!,
+        lng: coordinates.lng!,
+      });
     }
-  };
-
-  const handleSearch = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    await performSearch(searchQuery);
   };
 
   const handleGetCurrentLocation = () => {
@@ -260,32 +222,15 @@ const HereMap = ({
     setError(null);
 
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
+      (position) => {
         const lat = position.coords.latitude.toFixed(6);
         const lng = position.coords.longitude.toFixed(6);
         const newCoord = { lat, lng };
 
         setCoordinates(newCoord);
-        onCoordinatesChange(newCoord);
-
-        try {
-          const response = await fetch(`/api/reverse-geocode?lat=${lat}&lng=${lng}`);
-          if (!response.ok) {
-            throw new Error("Failed to reverse geocode location");
-          }
-          const data = await response.json();
-          if (data.items && data.items.length > 0) {
-            const address = data.items[0].title;
-            setSearchQuery(address);
-            if (onAddressChange) {
-              onAddressChange(address);
-            }
-          }
-        } catch (err) {
-          console.error("Reverse geocoding error:", err);
-        } finally {
-          setIsLocating(false);
-        }
+        onCoordsChangeRef.current(newCoord);
+        syncMapToCoord(position.coords.latitude, position.coords.longitude);
+        setIsLocating(false);
       },
       (err) => {
         console.error("Geolocation error:", err);
@@ -309,44 +254,15 @@ const HereMap = ({
   };
 
   useEffect(() => {
-    setIsMapLoading(true);
     if (
       !mapInstance.current ||
-      !coordinates.lat ||
-      !coordinates.lng
+      !isValidCoord(coordinates.lat) ||
+      !isValidCoord(coordinates.lng)
     ) {
-      setIsMapLoading(false);
       return;
     }
-
-    const here = window.H;
-    const coord = { lat: +coordinates.lat, lng: +coordinates.lng };
-
-    mapInstance.current.setCenter(coord);
-
-    if (markerRef.current) {
-      markerRef.current.setGeometry(coord);
-    } else {
-      markerRef.current = new here.map.Marker(coord);
-      mapInstance.current.addObject(markerRef.current!);
-    }
-
-    if (circleRef.current) {
-      circleRef.current.setCenter(coord);
-      circleRef.current.setRadius(radius);
-    } else {
-      circleRef.current = new here.map.Circle(coord, radius, {
-        style: {
-          strokeColor: "rgba(255, 0, 0, 0.7)",
-          lineWidth: 2,
-          fillColor: "rgba(0, 255, 0, 0.3)",
-        },
-      });
-      mapInstance.current.addObject(circleRef.current!);
-    }
-
-    setIsMapLoading(false);
-  }, [coordinates, radius]);
+    syncMapToCoord(Number(coordinates.lat), Number(coordinates.lng));
+  }, [coordinates.lat, coordinates.lng, radius]);
 
   const mapAvailable = !!apikey;
 
@@ -355,50 +271,21 @@ const HereMap = ({
       <CardContent>
         {mapAvailable ? (
           <>
-            <div className="flex flex-col sm:flex-row gap-2 mb-4">
-              <div className="flex-1">
-                <AddressField
-                  value={searchQuery}
-                  onSelect={(selected) => {
-                    setSearchQuery(selected);
-                    if (onAddressChange) {
-                      onAddressChange(selected);
-                    }
-                    performSearch(selected);
-                  }}
-                />
-              </div>
-
-              <div className="flex gap-2 w-full sm:w-auto">
-                <Button
-                  type="button"
-                  onClick={handleSearch}
-                  disabled={isLoading || isMapLoading || isLocating || !searchQuery}
-                  className="flex-1 sm:flex-none"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Search className="h-4 w-4 mr-2" />
-                  )}
-                  Search
-                </Button>
-
-                <Button
-                  type="button"
-                  onClick={handleGetCurrentLocation}
-                  disabled={isLoading || isMapLoading || isLocating}
-                  variant="outline"
-                  className="border-primary text-primary hover:bg-primary/10 flex items-center gap-1 flex-1 sm:flex-none"
-                >
-                  {isLocating ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-1" />
-                  ) : (
-                    <MapPin className="h-4 w-4 mr-1" />
-                  )}
-                  Current Location
-                </Button>
-              </div>
+            <div className="flex gap-2 mb-4">
+              <Button
+                type="button"
+                onClick={handleGetCurrentLocation}
+                disabled={isMapLoading || isLocating}
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/10"
+              >
+                {isLocating ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : (
+                  <MapPin className="h-4 w-4 mr-1" />
+                )}
+                Use Current Location
+              </Button>
             </div>
 
             <div
