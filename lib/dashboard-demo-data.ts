@@ -52,5 +52,5 @@ export const dashboardDemoMetrics: DashboardMetrics = {
 };
 
 export function isDashboardDemoEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_DASHBOARD_DEMO !== "false";
+  return process.env.NEXT_PUBLIC_DASHBOARD_DEMO === "true";
 }

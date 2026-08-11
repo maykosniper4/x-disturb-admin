@@ -10,6 +10,8 @@ import { AdminStatCard } from "@/components/admin/admin-stat-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useDashboardMetrics } from "@/hooks/useDashboardMetrics";
+import { formatAdminCount } from "@/lib/admin-display";
 import { Users, MapPin, DollarSign } from "lucide-react";
 import {
   Area,
@@ -49,6 +51,10 @@ export default function Reports() {
       };
     }) ?? [];
 
+  const { metrics, loading: loadingMetrics } = useDashboardMetrics();
+  const totalActivities = metrics?.stats?.totalActivities;
+  const activityChange = metrics?.stats?.activityChangePercent ?? 0;
+
   return (
     <AdminPageContent>
       <div className="grid gap-4 sm:grid-cols-3">
@@ -62,10 +68,21 @@ export default function Reports() {
         />
         <AdminStatCard
           title="Zone activity"
-          value="3,210"
-          change="-5% vs last month"
-          changeType="negative"
+          value={totalActivities !== undefined ? formatAdminCount(totalActivities) : "—"}
+          change={
+            metrics?.stats
+              ? `${activityChange >= 0 ? "+" : ""}${activityChange}% vs last week`
+              : undefined
+          }
+          changeType={
+            activityChange > 0
+              ? "positive"
+              : activityChange < 0
+                ? "negative"
+                : "neutral"
+          }
           icon={MapPin}
+          loading={loadingMetrics}
         />
         <AdminStatCard
           title="Total revenue"
