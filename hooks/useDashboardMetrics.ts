@@ -68,20 +68,16 @@ export function useDashboardMetrics() {
 				zones,
 				transactions,
 			);
-			if (isMetricsEmpty(live)) {
-				setMetrics(dashboardDemoMetrics);
-				setIsDemo(true);
-			} else {
-				setMetrics(live);
-				setIsDemo(false);
-			}
+			setMetrics(live);
+			setIsDemo(false);
 			setLoading(false);
 		};
 
 		const handleError = (message: string) => (err: Error) => {
 			console.error(message, err);
-			setMetrics(dashboardDemoMetrics);
-			setIsDemo(true);
+			const emptyLive = buildDashboardMetrics([], [], [], []);
+			setMetrics(emptyLive);
+			setIsDemo(false);
 			setError(err.message);
 			setLoading(false);
 		};
