@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -274,145 +274,147 @@ const UsersManagementPage = () => {
 
       {/* Create User Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
+        <DialogContent className="max-w-md max-h-[90vh] flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-3 border-b border-border/60">
             <DialogTitle>Create New User</DialogTitle>
             <DialogDescription>
               Add a new mobile user, operator, or community member account to X-Disturb.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateUser} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="create-name">Full Name *</Label>
-              <Input
-                id="create-name"
-                placeholder="e.g. Dawit Bekele"
-                value={createForm.name}
-                onChange={(e) =>
-                  setCreateForm((prev) => ({ ...prev, name: e.target.value }))
-                }
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="create-phone" className="flex items-center justify-between">
-                <span>Phone Number *</span>
-                <span className="text-xs text-muted-foreground font-normal">
-                  Mobile App Identity
-                </span>
-              </Label>
-              <div className="relative">
+          <form onSubmit={handleCreateUser} className="flex flex-col flex-1 overflow-hidden min-h-0">
+            <div className="flex-1 overflow-y-auto p-6 py-4 space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="create-name">Full Name *</Label>
                 <Input
-                  id="create-phone"
-                  type="tel"
-                  placeholder="e.g. +251911234567 or 0911234567"
-                  value={createForm.phoneNumber}
+                  id="create-name"
+                  placeholder="e.g. Dawit Bekele"
+                  value={createForm.name}
                   onChange={(e) =>
-                    setCreateForm((prev) => ({ ...prev, phoneNumber: e.target.value }))
+                    setCreateForm((prev) => ({ ...prev, name: e.target.value }))
                   }
                   required
                 />
-                <Phone className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Matches the mobile app OTP login (+251 9... / +251 7...).
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="create-category">Category *</Label>
-                <Select
-                  value={createForm.category}
-                  onValueChange={(val) =>
-                    setCreateForm((prev) => ({ ...prev, category: val }))
-                  }
-                >
-                  <SelectTrigger id="create-category">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORY_OPTIONS.map((item) => (
-                      <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="create-role">Assigned Role</Label>
-                <Select
-                  value={createForm.role}
-                  onValueChange={(val) =>
-                    setCreateForm((prev) => ({ ...prev, role: val }))
-                  }
-                >
-                  <SelectTrigger id="create-role">
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map((r) => (
-                      <SelectItem key={r.id} value={r.name}>
-                        {r.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="create-email">
-                Email Address <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
-              </Label>
-              <Input
-                id="create-email"
-                type="email"
-                placeholder="e.g. dawit@example.com (optional)"
-                value={createForm.email}
-                onChange={(e) =>
-                  setCreateForm((prev) => ({ ...prev, email: e.target.value }))
-                }
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="create-referral">
-                Referral / Invite Code <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
-              </Label>
-              <Input
-                id="create-referral"
-                placeholder="e.g. 1RAS5UST (optional)"
-                value={createForm.referralCode}
-                onChange={(e) =>
-                  setCreateForm((prev) => ({ ...prev, referralCode: e.target.value }))
-                }
-              />
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3">
-              <div className="space-y-0.5">
-                <Label htmlFor="create-active" className="text-sm font-medium">
-                  Active Status
+                <Label htmlFor="create-phone" className="flex items-center justify-between">
+                  <span>Phone Number *</span>
+                  <span className="text-xs text-muted-foreground font-normal">
+                    Mobile App Identity
+                  </span>
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Allow immediate sign-in and app privileges
+                <div className="relative">
+                  <Input
+                    id="create-phone"
+                    type="tel"
+                    placeholder="e.g. +251911234567 or 0911234567"
+                    value={createForm.phoneNumber}
+                    onChange={(e) =>
+                      setCreateForm((prev) => ({ ...prev, phoneNumber: e.target.value }))
+                    }
+                    required
+                  />
+                  <Phone className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Matches the mobile app OTP login (+251 9... / +251 7...).
                 </p>
               </div>
-              <Switch
-                id="create-active"
-                checked={createForm.isActive}
-                onCheckedChange={(checked) =>
-                  setCreateForm((prev) => ({ ...prev, isActive: checked }))
-                }
-              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="create-category">Category *</Label>
+                  <Select
+                    value={createForm.category}
+                    onValueChange={(val) =>
+                      setCreateForm((prev) => ({ ...prev, category: val }))
+                    }
+                  >
+                    <SelectTrigger id="create-category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORY_OPTIONS.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="create-role">Assigned Role</Label>
+                  <Select
+                    value={createForm.role}
+                    onValueChange={(val) =>
+                      setCreateForm((prev) => ({ ...prev, role: val }))
+                    }
+                  >
+                    <SelectTrigger id="create-role">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map((r) => (
+                        <SelectItem key={r.id} value={r.name}>
+                          {r.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="create-email">
+                  Email Address <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                </Label>
+                <Input
+                  id="create-email"
+                  type="email"
+                  placeholder="e.g. dawit@example.com (optional)"
+                  value={createForm.email}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="create-referral">
+                  Referral / Invite Code <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                </Label>
+                <Input
+                  id="create-referral"
+                  placeholder="e.g. 1RAS5UST (optional)"
+                  value={createForm.referralCode}
+                  onChange={(e) =>
+                    setCreateForm((prev) => ({ ...prev, referralCode: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="create-active" className="text-sm font-medium">
+                    Active Status
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Allow immediate sign-in and app privileges
+                  </p>
+                </div>
+                <Switch
+                  id="create-active"
+                  checked={createForm.isActive}
+                  onCheckedChange={(checked) =>
+                    setCreateForm((prev) => ({ ...prev, isActive: checked }))
+                  }
+                />
+              </div>
             </div>
 
-            <DialogFooter className="pt-3">
+            <DialogFooter className="p-4 px-6 border-t border-border bg-muted/10 flex items-center justify-end gap-2">
               <Button
                 type="button"
                 variant="outline"
