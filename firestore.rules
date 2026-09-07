@@ -1,4 +1,4 @@
-rules_version = '2';
+﻿rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isSignedIn() {
@@ -9,49 +9,51 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Users: own-doc writes; authenticated reads so phone login can resolve
-    // existing accounts (get by id + single-doc phone queries).
+    // Users: authenticated reads & writes for app login and admin management
     match /users/{userId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create, update: if isOwner(userId);
-      allow delete: if false;
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
 
       match /notifications/{notificationId} {
-        allow read, write: if isOwner(userId);
+        allow read, write: if isSignedIn();
       }
     }
 
-    // Admin profile: any signed-in user can read/write their own profile.
+    // Admin profile
     match /admin_profile/{adminId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Roles and Permissions management
+    match /roles/{roleId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Audit logs tracking
+    match /audit_logs/{logId} {
       allow read, write: if isSignedIn();
     }
 
     // Phone → userId index for O(1) registered-user checks.
     match /phone_index/{phone} {
-      allow get: if isSignedIn();
-      allow create, update: if isSignedIn()
-        && request.resource.data.userId == request.auth.uid;
-      allow delete: if false;
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
     }
 
     match /referral_codes/{userId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn() && request.query.limit <= 1;
-      allow create, update: if isOwner(userId);
-      allow delete: if false;
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isSignedIn();
     }
 
     match /referrals/{id} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update, delete: if false;
+      allow read, create: if isSignedIn();
+      allow update, delete: if isSignedIn();
     }
 
-    // Catalog data: any signed-in user can read active plans / zones.
+    // Catalog data
     match /subscription_plans/{planId} {
       allow read: if isSignedIn();
-      allow write: if false;
+      allow write: if isSignedIn();
     }
 
     match /silent_zones/{zoneId} {
@@ -59,19 +61,22 @@ service cloud.firestore {
       allow write: if isSignedIn();
     }
 
-    // Payment intents are created/updated by the backend; clients only watch
-    // their own pending → verified/failed status.
     match /payment_intents/{txRef} {
       allow read: if isSignedIn()
-        && resource.data.uid == request.auth.uid;
-      allow create: if isSignedIn()
-        && request.resource.data.uid == request.auth.uid;
-      allow update, delete: if false;
+        && (resource.data.uid == request.auth.uid || resource.data == null);
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
     }
 
     match /zone_activities/{activityId} {
-      allow create: if isSignedIn();
-      allow read, update, delete: if false;
+      allow create, read: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    // Legal documents (Data Security, User Agreement, Privacy Policy)
+    match /app_legal_content/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn();
     }
   }
 }

@@ -86,6 +86,9 @@ export function LandingPage() {
 						<Button variant="ghost" size="sm" asChild>
 							<a href="#how-it-works">How it works</a>
 						</Button>
+						<Button variant="outline" size="sm" asChild>
+							<Link href="/auth/login">Admin Portal</Link>
+						</Button>
 					</nav>
 				</div>
 			</header>
@@ -261,6 +264,12 @@ export function LandingPage() {
 						</p>
 					</div>
 					<div className="flex flex-wrap gap-4 text-sm">
+						<Link
+							href="/auth/login"
+							className="text-muted-foreground transition-colors hover:text-foreground"
+						>
+							Admin Portal
+						</Link>
 						<Link
 							href="/help-center"
 							className="text-muted-foreground transition-colors hover:text-foreground"

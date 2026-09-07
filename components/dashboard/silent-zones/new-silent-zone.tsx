@@ -34,6 +34,7 @@ import { toast } from "react-toastify";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import HereMap from "./HereMap";
 import AddressField from "./AddressSuggestion";
+import { logAuditEvent } from "@/app/api/audit-logs-api";
 
 const CenterSchema = z.object({
 	latitude: z.string(),
@@ -96,6 +97,16 @@ export default function CreateSilentZone() {
 				updatedAt: serverTimestamp(),
 			});
 			console.log("Document written with ID:", docRef.id);
+			await logAuditEvent({
+				action: "ZONE_CREATED",
+				category: "zones",
+				targetType: "Silent Zone",
+				targetId: docRef.id,
+				targetName: values.name,
+				details: `Created ${values.type} silent zone '${values.name}' with radius ${values.radius}m at ${values.address}.`,
+				metadata: { address: values.address, radius: values.radius, type: values.type },
+				status: "success",
+			});
 			toast.success("Silent zone created successfully!");
 			setTimeout(() => router.push("/dashboard/silent-zones"), 1000);
 		} catch (error: any) {

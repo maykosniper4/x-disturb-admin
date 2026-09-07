@@ -49,6 +49,16 @@ const adminPageMetaByPath: Record<string, AdminPageMeta> = {
     description:
       "Search, filter, and manage user accounts, roles, and access status.",
   },
+  "/dashboard/roles-permissions": {
+    title: "Roles & Permissions",
+    description:
+      "Configure administrative roles, assign granular permissions, and control access across modules.",
+  },
+  "/dashboard/audit-logs": {
+    title: "Audit Logs",
+    description:
+      "Inspect historical operator actions, security events, and administrative changes with detailed filtering.",
+  },
   "/dashboard/transactions": {
     title: "Telebirr Transactions",
     description:

@@ -9,6 +9,8 @@ import {
   KeyIcon,
   CreditCard,
   BarChart3,
+  ShieldCheck,
+  History,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,13 +42,28 @@ export const adminNavGroups: AdminNavGroup[] = [
     ],
   },
   {
-    label: "Users & Billing",
+    label: "Users & Security",
     items: [
       {
         label: "Users Management",
         icon: Users,
         path: "/dashboard/users-management",
       },
+      {
+        label: "Roles & Permissions",
+        icon: ShieldCheck,
+        path: "/dashboard/roles-permissions",
+      },
+      {
+        label: "Audit Logs",
+        icon: History,
+        path: "/dashboard/audit-logs",
+      },
+    ],
+  },
+  {
+    label: "Billing & Plans",
+    items: [
       { label: "Transactions", icon: Receipt, path: "/dashboard/transactions" },
       {
         label: "Subscription Plans",

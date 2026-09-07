@@ -9,6 +9,7 @@ import {
 } from "@/app/api/notification-api";
 import { Loader, Plus } from "lucide-react";
 import { toast } from "react-toastify";
+import { logAuditEvent } from "@/app/api/audit-logs-api";
 import { AdminPageContent } from "@/components/admin/admin-layout";
 import { AdminPageHeaderActions } from "@/components/admin/admin-page-header-provider";
 import {
@@ -137,6 +138,16 @@ export default function PushNotificationPage() {
         target: payload.target,
         targetType: payload.targetType,
         title: payload.title,
+      });
+
+      await logAuditEvent({
+        action: form.isScheduled ? "NOTIFICATION_SCHEDULED" : "NOTIFICATION_SENT",
+        category: "notifications",
+        targetType: "Push Notification",
+        targetName: payload.title,
+        details: `${form.isScheduled ? "Scheduled" : "Dispatched"} push notification: "${payload.title}" to ${payload.targetType} target '${payload.target}'.`,
+        metadata: { title: payload.title, target: payload.target, targetType: payload.targetType, scheduled: form.isScheduled },
+        status: "success",
       });
 
       await loadHistory();

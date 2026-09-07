@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "react-toastify";
+import { logAuditEvent } from "@/app/api/audit-logs-api";
 import {
   ShieldCheck,
   FileText,
@@ -345,6 +346,15 @@ export default function LegalDocumentsManager() {
       await setDoc(docRef, docToSave, { merge: true });
 
       setDocuments((prev) => ({ ...prev, [selectedDocId]: docToSave }));
+      await logAuditEvent({
+        action: "LEGAL_DOC_UPDATED",
+        category: "system",
+        targetType: "Legal Document",
+        targetId: selectedDocId,
+        targetName: docToSave.title,
+        details: `Published updated legal document '${docToSave.title}' with ${docToSave.sections.length} sections.`,
+        status: "info",
+      });
       toast.success(`${docToSave.title} published to Firebase successfully! Mobile app will update live.`);
     } catch (err: any) {
       console.error("Error saving document to Firestore:", err);

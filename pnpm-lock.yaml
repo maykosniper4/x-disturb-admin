@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@here/maps-api-for-javascript':
-        specifier: ^1.63.1
-        version: 1.69.2
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.4.0(react-hook-form@7.81.0(react@18.2.0))
@@ -448,9 +445,6 @@ packages:
     resolution: {integrity: sha512-tMXdRCfYVixjuFK+Hk0Q1s38gV9zDiDJfWL3h1rv4Qc39oILCu1TRTDt7+fGUI8K4G1Fj125Hx/ru3azECWTyQ==}
     engines: {node: '>=6'}
     hasBin: true
-
-  '@here/maps-api-for-javascript@1.69.2':
-    resolution: {integrity: sha512-H443kdVRmwz4Egvbdog9V6l3fKajfGdvDO0x0LeQ+PxZLXUyqNAZTIUk5HO3KUN/s9esJTmFtw/5AVCn0EmhsQ==, tarball: https://repo.platform.here.com/artifactory/api/npm/maps-api-for-javascript/-/@here/maps-api-for-javascript-1.69.2.tgz}
 
   '@hookform/resolvers@5.4.0':
     resolution: {integrity: sha512-EIsqr/t/qbinPIhGjMdtvutIN1Kk4uwbROE9/UQ93CAVGR7GkA7Y92+fX80OzXi/OB67jVFYwKGO1WzkxmkFZw==}
@@ -3754,8 +3748,6 @@ snapshots:
       long: 5.3.2
       protobufjs: 7.6.5
       yargs: 17.7.3
-
-  '@here/maps-api-for-javascript@1.69.2': {}
 
   '@hookform/resolvers@5.4.0(react-hook-form@7.81.0(react@18.2.0))':
     dependencies:

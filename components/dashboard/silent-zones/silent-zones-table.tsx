@@ -29,6 +29,7 @@ import { db } from "@/firebase/config";
 import { useEffect, useState } from "react";
 import { ConfirmRemovalDialog } from "./ConfirmRemove";
 import { Button } from "@/components/ui/button";
+import { logAuditEvent } from "@/app/api/audit-logs-api";
 
 interface SilentZone {
 	name: string;
@@ -72,8 +73,18 @@ export default function SilentZones() {
 
 	const handleRemoveSilentZone = async (id: string) => {
 		try {
+			const target = silentZones.find((z) => z.id === id);
 			setIsOpen(false);
 			await deleteDoc(doc(db, "silent_zones", id));
+			await logAuditEvent({
+				action: "ZONE_DELETED",
+				category: "zones",
+				targetType: "Silent Zone",
+				targetId: id,
+				targetName: target?.name || "Silent Zone",
+				details: `Removed silent zone '${target?.name || id}' from active catalog.`,
+				status: "danger",
+			});
 			console.log("Document removed with ID:", id);
 		} catch (err) {
 			console.error("Error removing silent zone:", err);

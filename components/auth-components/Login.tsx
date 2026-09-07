@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useSignInWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth } from "@/firebase/config";
 import { session } from "@/lib/sessionStorage";
+import { isDashboardDemoEnabled } from "@/lib/dashboard-demo-data";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -56,6 +57,15 @@ export default function LoginPage() {
 		} finally {
 			setIsSubmitting(false);
 		}
+	};
+
+	const isDemo = isDashboardDemoEnabled();
+
+	const handleDemoLogin = () => {
+		session.setItem("isAuthenticated", true);
+		session.setItem("userId", "demo_admin_user");
+		session.setItem("accessToken", "demo_access_token");
+		router.push("/dashboard");
 	};
 
 	return (
@@ -118,6 +128,17 @@ export default function LoginPage() {
 								"Sign in"
 							)}
 						</Button>
+
+						{isDemo && (
+							<Button
+								type="button"
+								variant="outline"
+								className="w-full border-dashed border-primary/50 text-primary hover:bg-primary/10"
+								onClick={handleDemoLogin}
+							>
+								🚀 Enter Demo Dashboard
+							</Button>
+						)}
 
 						<p className="text-center text-sm text-primary">
 							Forgot your password?
