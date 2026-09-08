@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useState, useMemo } from "react";
 import {
@@ -63,7 +63,7 @@ import {
   Clock,
 } from "lucide-react";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { saveAs } from "@/lib/file-saver";
 
 const PAGE_SIZE = 10;
 
@@ -260,7 +260,7 @@ export default function AuditLogsPage() {
           title="High-Impact / Security Alerts"
           value={formatAdminCount(highImpactCount)}
           icon={ShieldAlert}
-          changeType={highImpactCount > 0 ? "warning" : "positive"}
+          changeType={highImpactCount > 0 ? "negative" : "positive"}
           loading={loading}
         />
         <AdminStatCard

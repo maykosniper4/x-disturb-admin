@@ -9,7 +9,7 @@ const nextConfig = {
     domains: ['i.pravatar.cc'],
   },
   webpack: (config) => {
-    config.resolve.alias["@"] = path.resolve(__dirname);
+    config.resolve.alias["@"] = path.resolve(__dirname).replace(/\\/g, "/");
     return config;
   },
   async rewrites() {

@@ -80,6 +80,9 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      file-saver:
+        specifier: ^2.0.5
+        version: 2.0.5
       firebase:
         specifier: ^10.14.1
         version: 10.14.1
@@ -162,9 +165,6 @@ importers:
       eslint-config-next:
         specifier: 15.2.4
         version: 15.2.4(eslint@8.57.1)(typescript@5.9.3)
-      file-saver:
-        specifier: ^2.0.5
-        version: 2.0.5
       postcss:
         specifier: ^8.5.14
         version: 8.5.16

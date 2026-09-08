@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { UserPlus, Download, Loader2, Phone } from "lucide-react";
 import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { saveAs } from "@/lib/file-saver";
 import { formatAdminDate, formatAdminDateShort } from "@/lib/admin-display";
 
 const CATEGORY_OPTIONS = [
