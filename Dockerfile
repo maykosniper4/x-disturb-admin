@@ -1,16 +1,19 @@
-FROM node:20-alpine AS deps
-WORKDIR /app
-ENV NODE_ENV=development
-RUN npm install -g pnpm@9.15.9
-COPY package.json pnpm-lock.yaml* .npmrc* ./
-RUN pnpm install --prod=false
-
 FROM node:20-alpine AS builder
 WORKDIR /app
-RUN npm install -g pnpm@9.15.9
-COPY --from=deps /app/node_modules ./node_modules
+RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
+
+# Copy package manifests first to leverage Docker layer caching
+COPY package.json pnpm-lock.yaml* .npmrc* ./
+
+ENV NODE_ENV=development
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --prod=false
+
+# Copy application source code
 COPY . .
 
+# Build arguments for Next.js public environment variables
 ARG NEXT_PUBLIC_FIREBASE_API_KEY
 ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
 ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID
@@ -20,6 +23,7 @@ ARG NEXT_PUBLIC_FIREBASE_APP_ID
 ARG NEXT_PUBLIC_HERE_API_KEY
 ARG NEXT_PUBLIC_NOTIFICATIONS_END_POINT
 ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_CHAPA_PUBLIC_KEY
 ARG NEXT_PUBLIC_DASHBOARD_DEMO
 
 ENV NEXT_PUBLIC_FIREBASE_API_KEY=$NEXT_PUBLIC_FIREBASE_API_KEY
@@ -31,10 +35,11 @@ ENV NEXT_PUBLIC_FIREBASE_APP_ID=$NEXT_PUBLIC_FIREBASE_APP_ID
 ENV NEXT_PUBLIC_HERE_API_KEY=$NEXT_PUBLIC_HERE_API_KEY
 ENV NEXT_PUBLIC_NOTIFICATIONS_END_POINT=$NEXT_PUBLIC_NOTIFICATIONS_END_POINT
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_CHAPA_PUBLIC_KEY=$NEXT_PUBLIC_CHAPA_PUBLIC_KEY
 ENV NEXT_PUBLIC_DASHBOARD_DEMO=$NEXT_PUBLIC_DASHBOARD_DEMO
 
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS=--dns-result-order=ipv4first
+ENV NODE_OPTIONS="--max-old-space-size=1536 --dns-result-order=ipv4first"
 RUN pnpm run build
 
 FROM node:20-alpine AS runner
@@ -55,3 +60,4 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
 CMD ["node", "server.js"]
+

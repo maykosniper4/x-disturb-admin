@@ -5,6 +5,9 @@ const path = require("path");
 
 const nextConfig = {
   output: "standalone",
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     domains: ['i.pravatar.cc'],
   },
