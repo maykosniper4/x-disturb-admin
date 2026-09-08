@@ -6,7 +6,6 @@ RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 # Copy package manifests first to leverage Docker layer caching
 COPY package.json pnpm-lock.yaml* .npmrc* ./
 
-ENV NODE_ENV=development
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile --prod=false
 
@@ -38,6 +37,7 @@ ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_CHAPA_PUBLIC_KEY=$NEXT_PUBLIC_CHAPA_PUBLIC_KEY
 ENV NEXT_PUBLIC_DASHBOARD_DEMO=$NEXT_PUBLIC_DASHBOARD_DEMO
 
+ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=1536 --dns-result-order=ipv4first"
 RUN pnpm run build
