@@ -1,10 +1,16 @@
 /**
  * @type {import('next').NextConfig}
  */
+const path = require("path");
+
 const nextConfig = {
   output: "standalone",
   images: {
     domains: ['i.pravatar.cc'],
+  },
+  webpack: (config) => {
+    config.resolve.alias["@"] = path.resolve(__dirname);
+    return config;
   },
   async rewrites() {
     return [
